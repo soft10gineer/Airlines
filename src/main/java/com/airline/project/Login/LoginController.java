@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.airline.project.OtpDetails.OtpService;
 import com.airline.project.Service.UserDetailsServiceImpl;
 import com.airline.project.User.UserOnboarding;
 import com.airline.project.User.UserRepository;
+import com.airline.project.User.UserService;
 import com.airline.project.Utils.JwtUtil;
 
 @RestController
@@ -40,6 +42,11 @@ public class LoginController {
 	@Autowired
 	private JwtUtil jwtutil;
 	
+	@Autowired
+	private UserService userservice;
+	
+	@Autowired
+	private OtpService otpservice;
 	
 	@GetMapping("/user")
 	public String getLogin(@RequestBody UserLoginRegister user) {
@@ -59,14 +66,11 @@ public class LoginController {
 	
 	
 	@PostMapping("/register")
-	public String getRegister(@RequestBody UserLoginRegister user) {
+	public String registerMobile(@RequestBody UserOnboarding user) {
 		
-		String encodedPassword = passwordEncoder.encode(user.getUserPasswrd());
-		String findRefNo = userrepository.findByEmail(user.getUserEmail()).getUserId();
-		user.setUserKey(findRefNo);
-		user.setUserPasswrd(encodedPassword);
-		userloginrepository.save(user);
-		return " User Registered";
+		userservice.addUser(user);
+		return otpservice.generateOtp(user.getUserId());
+		
 	}
 	
 }

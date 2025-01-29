@@ -39,10 +39,7 @@ public class UserController {
 		return userService.getAllUser();
 	}
 	
-	@PostMapping("/add-user")
-	public String addUser(@RequestBody Map<String, Object> userBody) {
-		return userService.addUser(userBody); 
-	}
+	
 	
 	@GetMapping("/get")
 	public ResponseEntity<?> getUserByName(@RequestBody Map<String, String> userName) throws JsonProcessingException {

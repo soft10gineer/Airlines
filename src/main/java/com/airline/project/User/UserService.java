@@ -54,7 +54,7 @@ public class UserService {
 	}
 	
 	
-	public String addUser(Map<String, Object> userBody) {
+	public void addUser(UserOnboarding userBody) {
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyyHHmmssSSS");
 		LocalDateTime now = LocalDateTime.now();
@@ -64,14 +64,13 @@ public class UserService {
         char randomUppercase = (char) ('A' + new Random().nextInt(26));
         
         String variable = "AIR" + formattedDateTime + randomLowercase + randomUppercase ;
-		String userName = (String) userBody.get("name");
-		Integer userAge = (Integer) userBody.get("age");
-		String userEmail = (String) userBody.get("email");
-		LocalDateTime createdDate = LocalDateTime.now();
-		String userGender = (String) userBody.get("gender");
-		UserOnboarding useronboard = new UserOnboarding(variable,userName,userAge, createdDate, userGender, userEmail );
-		userRepository.save(useronboard);
-		return "User Added Succesfully with id" + variable;	
+		userBody.setUserId(variable);
+		String mobileNumber = "+91"+userBody.getUserMobileNumber();
+		userBody.setUserMobileNumber(mobileNumber);
+        LocalDateTime createdDate = LocalDateTime.now();
+        userBody.setCreatedDateTimestamp(createdDate);
+        userRepository.save(userBody);
+		System.out.println(("User Added Succesfully with Reference Id" + variable));	
 	}
 
 }

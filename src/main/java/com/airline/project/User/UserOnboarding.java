@@ -20,7 +20,7 @@ public class UserOnboarding {
 	
 	
 	public UserOnboarding(String userId, String userName, Integer userAge, LocalDateTime createdDateTimestamp,
-			String userGender, String userEmail) {
+			String userGender, String userEmail, String userMobileNumber) {
 		
 		this.userId = userId;
 		this.userName = userName;
@@ -28,11 +28,13 @@ public class UserOnboarding {
 		this.createdDateTimestamp = createdDateTimestamp;
 		this.userGender = userGender;
 		this.userEmail= userEmail;
+		this.userMobileNumber = userMobileNumber;
 	}
 
 
 	@Id
 	@Column(name = "ref_id")
+	@JsonProperty("Ref No")
 	private String userId;
 	
 	@Column(name = "name")
