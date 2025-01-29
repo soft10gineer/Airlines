@@ -19,6 +19,8 @@ import com.airline.project.User.UserOnboarding;
 import com.airline.project.User.UserRepository;
 import com.airline.project.User.UserService;
 import com.airline.project.Utils.JwtUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/login")
@@ -46,6 +48,9 @@ public class LoginController {
 	private UserService userservice;
 	
 	@Autowired
+	private ObjectMapper objectmapper;
+	
+	@Autowired
 	private OtpService otpservice;
 	
 	@GetMapping("/user")
@@ -66,11 +71,16 @@ public class LoginController {
 	
 	
 	@PostMapping("/register")
-	public String registerMobile(@RequestBody UserOnboarding user) {
+	public String registerMobile(@RequestBody UserOnboarding user) throws JsonProcessingException {
 		
-		userservice.addUser(user);
-		return otpservice.generateOtp(user.getUserId());
+		String serviceOne = userservice.addUser(user);
+		String serviceTwo = otpservice.generateOtp(user.getUserId());
 		
+		Map<String, String> resultMap = Map.of("serviceOneResult", serviceOne,
+	            "serviceTwoResult", serviceTwo
+				);
+		
+		return objectmapper.writeValueAsString(resultMap);
 	}
 	
 }

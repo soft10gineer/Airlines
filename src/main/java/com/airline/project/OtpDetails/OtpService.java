@@ -1,10 +1,12 @@
 package com.airline.project.OtpDetails;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,22 +59,36 @@ public class OtpService {
 	
 	public String validateOtp(String otp, String leadid) {
 		OtpDtls user = otprepository.findById(leadid).get();
-		if (user.getGeneratedOtp().equals(otp)) {
-			user.setUsrVldty(true);
-			otprepository.save(user);
-			return "User Validated Successfully";
-		} else { 
-			return "Invalid OTP! Please Try again";
+		LocalDateTime otpTime = user.getOtpGenerateTime();
+		LocalDateTime userOtpTime = LocalDateTime.now();
+		
+		Duration duration = Duration.between(otpTime, userOtpTime);
+		if (duration.getSeconds()<=60) {
+			 
+			if (user.getGeneratedOtp().equals(otp)) {
+				user.setUsrVldty(true);
+				otprepository.save(user);
+				return "User Validated Successfully";
+			}  else { 
+				return "Invalid OTP! Please Try again";
+			}
+			
+		} else {
+			return "Time Exceeded! Please Try Again";
 		}
 	}
 	
 	public String resendOtp(String refId) {
 		Integer otpAttempts = otprepository.findById(refId).get().getOtpAttempt();
+		LocalDateTime yearDuration = otprepository.findById(refId).get().getOtpGenerateTime();
+		LocalDateTime dateNow = LocalDateTime.now();
+		Duration duration = Duration.between(yearDuration, dateNow);
 		if(otpAttempts==3) {
 			
 			return "OTP Limits Exceeded";
 		
-	} else {
+		} 
+		else {
 		return generateOtp(refId);
 		}
 	}

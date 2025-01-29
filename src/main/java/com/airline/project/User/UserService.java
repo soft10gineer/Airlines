@@ -54,7 +54,7 @@ public class UserService {
 	}
 	
 	
-	public void addUser(UserOnboarding userBody) {
+	public String addUser(UserOnboarding userBody) {
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyyHHmmssSSS");
 		LocalDateTime now = LocalDateTime.now();
@@ -70,7 +70,7 @@ public class UserService {
         LocalDateTime createdDate = LocalDateTime.now();
         userBody.setCreatedDateTimestamp(createdDate);
         userRepository.save(userBody);
-		System.out.println(("User Added Succesfully with Reference Id" + variable));	
+		return (("User Added Succesfully with Reference Id " + variable));	
 	}
 
 }

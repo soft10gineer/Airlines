@@ -26,8 +26,8 @@ public class OtpDtls {
 	@Column(name="otp_gnrt_tm")
 	private LocalDateTime otpGenerateTime;
 	
-	@Column(name="usr_vldty")
-	private Boolean usrVldty;
+	@Column(name = "usr_vldty")
+	private Boolean usrVldty = false; 
 
 	public Boolean getUsrVldty() {
 		return usrVldty;
