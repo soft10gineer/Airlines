@@ -3,6 +3,7 @@ package com.airline.project.Login;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.airline.project.OtpDetails.OtpService;
 import com.airline.project.Service.UserDetailsServiceImpl;
+import com.airline.project.Service.UserSessionServiceImpl;
+import com.airline.project.Session.SessionRepository;
+import com.airline.project.Session.SsnService;
 import com.airline.project.User.UserOnboarding;
 import com.airline.project.User.UserRepository;
 import com.airline.project.User.UserService;
@@ -30,7 +34,14 @@ public class LoginController {
 	private UserLoginRepository userloginrepository;
 	
 	@Autowired
+	private SsnService ssnservice;
+	
+	@Autowired
+	@Qualifier("UserDetailsServiceImpl")
 	private UserDetailsServiceImpl userDetailsService;
+	
+	@Autowired
+	private UserSessionServiceImpl userSessionService;
 	
 	@Autowired
     private PasswordEncoder passwordEncoder;
@@ -51,10 +62,14 @@ public class LoginController {
 	private ObjectMapper objectmapper;
 	
 	@Autowired
+	private SessionRepository sessionrepository;
+	
+	@Autowired
 	private OtpService otpservice;
 	
 	@GetMapping("/user")
 	public String getLogin(@RequestBody UserLoginRegister user) {
+		
 		authenticationmanager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserEmail(), user.getUserPasswrd()));
 		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserEmail());
 		String jwtTOken =  jwtutil.generateToken(userDetails.getUsername());
@@ -69,18 +84,49 @@ public class LoginController {
 		return userrepository.findByEmail(test).getUserId();
 	}
 	
+	@GetMapping("/generate")
+	public String generateSessionToken(@RequestBody UserOnboarding user) {
+		String generatedRefId = userservice.addUser(user);
+		
+		System.out.println("generated ref id :-"+ generatedRefId);
+		
+		System.out.println(ssnservice.sessionCreation(generatedRefId));
+		
+		String userSessionRefNo = sessionrepository.findById(generatedRefId).get().getSsnRefNo();
+		System.out.println("Sessoion :- "+userSessionRefNo);
+		UserDetails userSession = userSessionService.loadUserByUsername(userSessionRefNo);
+		System.out.println("user session :-"+userSessionRefNo);
+		String sessionJwtToken = jwtutil.generateToken(userSession.getUsername());
+		return sessionJwtToken;
+	}
+	
+	@PostMapping("/verify-mobile")
+	public String generateOtp(@RequestBody Map<String, String> userLeadId) {
+		String leadID = (String) userLeadId.get("leadId");
+		return otpservice.generateOtp(leadID);
+		
+	}
+	
+	@PostMapping("/validate-mobile")
+	public String validateOtp(@RequestBody Map<String, Object> userLeadId) {
+		String inputOtp = (String) userLeadId.get("Otp");
+		String leadID = (String) userLeadId.get("leadId");
+		
+		return otpservice.validateOtp(inputOtp, leadID);
+		
+	}
+	
+	@PostMapping("/prsnl-dtls")
+	public String usrPrsnlDtlsInput(@RequestBody UserOnboarding user) {
+		return userservice.prsnlDtlsInput(user);
+		
+	}
 	
 	@PostMapping("/register")
 	public String registerMobile(@RequestBody UserOnboarding user) throws JsonProcessingException {
 		
 		String serviceOne = userservice.addUser(user);
-		String serviceTwo = otpservice.generateOtp(user.getUserId());
-		
-		Map<String, String> resultMap = Map.of("serviceOneResult", serviceOne,
-	            "serviceTwoResult", serviceTwo
-				);
-		
-		return objectmapper.writeValueAsString(resultMap);
+		return "User Registered Succesfully with Leadid : "+ serviceOne;
 	}
 	
 }

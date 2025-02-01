@@ -9,11 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import com.airline.project.User.UserOnboarding;
+import com.airline.project.User.UserRepository;
+
 @Service
 public class OtpService {
 	
 	@Autowired
 	private OtpRepository otprepository;
+	
+	@Autowired
+	private UserRepository userrepository;
 	
 	public String generateOtp(String refId) {
 		
@@ -59,14 +65,17 @@ public class OtpService {
 	
 	public String validateOtp(String otp, String leadid) {
 		OtpDtls user = otprepository.findById(leadid).get();
+		UserOnboarding userOnb = userrepository.findById(leadid).get();
 		LocalDateTime otpTime = user.getOtpGenerateTime();
 		LocalDateTime userOtpTime = LocalDateTime.now();
 		
 		Duration duration = Duration.between(otpTime, userOtpTime);
-		if (duration.getSeconds()<=60) {
+		if (duration.getSeconds()<=120) {
 			 
 			if (user.getGeneratedOtp().equals(otp)) {
+				
 				user.setUsrVldty(true);
+				userOnb.setUserIsVerfied(true);
 				otprepository.save(user);
 				return "User Validated Successfully";
 			}  else { 
