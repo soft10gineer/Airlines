@@ -8,8 +8,11 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.airline.project.Login.UserLoginRegister;
+import com.airline.project.Login.UserLoginRepository;
 import com.airline.project.OtpDetails.OtpDtls;
 import com.airline.project.OtpDetails.OtpRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,7 +25,15 @@ public class UserService {
 	private UserRepository userRepository;
 	
 	@Autowired
+	private UserLoginRepository userloginrepository;
+	
+	@Autowired
 	private OtpRepository otprepository;
+	
+	@Autowired
+	private PasswordEncoder passwordencoder;
+	
+	
 	
 	@Autowired
 	private ObjectMapper objectmapper ;
@@ -63,10 +74,15 @@ public class UserService {
 		Optional<OtpDtls> userOtp =  otprepository.findById(userBody.getUserId());
 		UserOnboarding user = userRepository.findById(userBody.getUserId()).get();
 		
+		
 		if( userOtp.isPresent() && userOtp.get().getUsrVldty().equals(true)) {
 			userBody.setCreatedDateTimestamp(user.getCreatedDateTimestamp());
 			userBody.setUserMobileNumber(user.getUserMobileNumber());
+			String encodedPassword = passwordencoder.encode(userBody.getUserPasswordHash());
+			userBody.setUserPasswordHash(encodedPassword);
 			userRepository.save(userBody);
+			UserLoginRegister userLogin = new UserLoginRegister(userBody.getUserEmail(), userBody.getUserId(), encodedPassword);
+			userloginrepository.save(userLogin);
 			return "User Details of "+userBody.getUserFirstName()+ "is saved......";} 
 		else { 
 			return "User is not present";

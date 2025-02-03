@@ -37,7 +37,6 @@ public class LoginController {
 	private SsnService ssnservice;
 	
 	@Autowired
-	@Qualifier("UserDetailsServiceImpl")
 	private UserDetailsServiceImpl userDetailsService;
 	
 	@Autowired
@@ -68,9 +67,9 @@ public class LoginController {
 	private OtpService otpservice;
 	
 	@GetMapping("/user")
-	public String getLogin(@RequestBody UserLoginRegister user) {
+	public String getLogin(@RequestBody UserLoginRegister user) { 
 		
-		authenticationmanager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserEmail(), user.getUserPasswrd()));
+//		authenticationmanager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserEmail(), user.getUserPasswrd()));
 		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserEmail());
 		String jwtTOken =  jwtutil.generateToken(userDetails.getUsername());
 		return jwtTOken;
@@ -79,9 +78,7 @@ public class LoginController {
 	
 	@GetMapping("/test")
 	public String test(@RequestBody UserLoginRegister user) {
-		
-		String test = user.getUserEmail();
-		return userrepository.findByEmail(test).getUserId();
+		return "yashwardhan singh chandeland again restart";
 	}
 	
 	@GetMapping("/generate")

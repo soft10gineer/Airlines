@@ -13,18 +13,22 @@ public class UserLoginRegister {
 	
 	
 	public UserLoginRegister() {}
-	public UserLoginRegister(String email, String userKey, String userPasswrd) {
-		this.userEmail = email;
+	
+	
+	public UserLoginRegister(String userEmail, String userKey, String userPasswrd) {
+		super();
+		this.userEmail = userEmail;
 		this.userKey = userKey;
 		this.userPasswrd = userPasswrd;
 	}
+
 
 	@Id
 	@Column(name="email")
 	@JsonProperty("Email")
 	private String userEmail;
 	
-	@JsonProperty("Ref Key")
+	@JsonProperty("Ref No")
 	@Column(name="usr_ref_key")
 	private String userKey;
 	

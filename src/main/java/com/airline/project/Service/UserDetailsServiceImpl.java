@@ -16,7 +16,6 @@ import com.airline.project.Login.UserLoginRegister;
 import com.airline.project.Login.UserLoginRepository;
 
 @Service
-@Qualifier("UserDetailsServiceImpl")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
